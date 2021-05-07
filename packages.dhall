@@ -1,4 +1,7 @@
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.0/packages.dhall sha256:710b53c085a18aa1263474659daa0ae15b7a4f453158c4f60ab448a6b3ed494e
+      https://github.com/purerl/package-sets/releases/download/erl-0.14.0-20210319/packages.dhall sha256:aa6d4bcef87080a6684464cfba5fb611b03c4a4372b1e08c77186de4a1f5b66f
 
 in  upstream
+  with parsing = ../purescript-parsing/spago.dhall as Location
+  with unicode = ../purescript-unicode/spago.dhall as Location
+

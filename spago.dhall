@@ -1,13 +1,10 @@
 { name = "formatters"
+, backend = "purerl"
 , dependencies =
-  [ "aff"
-  , "arrays"
-  , "assert"
+  [ "arrays"
   , "bifunctors"
-  , "console"
   , "control"
   , "datetime"
-  , "effect"
   , "either"
   , "enums"
   , "foldable-traversable"
@@ -27,5 +24,5 @@
   , "tuples"
   ]
 , packages = ./packages.dhall
-, sources = [ "src/**/*.purs", "test/**/*.purs" ]
+, sources = [ "src/**/*.purs"]
 }

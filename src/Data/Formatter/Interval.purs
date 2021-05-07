@@ -6,11 +6,11 @@ module Data.Formatter.Interval
   ) where
 
 import Prelude
-
 import Data.DateTime (DateTime)
 import Data.Either (Either)
 import Data.Foldable (foldMap)
 import Data.Formatter.DateTime as FDT
+import Data.Formatter.Number (showNumberAsFloat)
 import Data.Formatter.Parser.Interval (parseRecurringInterval, parseInterval, parseIsoDuration, parseDateTime, extendedDateTimeFormatInUTC)
 import Data.Formatter.Parser.Utils (runP)
 import Data.Int as Int
@@ -25,8 +25,11 @@ formatRecurringInterval (I.RecurringInterval n i) = "R" <> (maybe "" formatInteg
 
 formatInterval ∷ I.Interval IsoDuration DateTime → String
 formatInterval (I.StartEnd x y) = (formatDateTime x) <> "/" <> (formatDateTime y)
+
 formatInterval (I.DurationEnd d x) = (formatIsoDuration d) <> "/" <> (formatDateTime x)
+
 formatInterval (I.StartDuration x d) = (formatDateTime x) <> "/" <> (formatIsoDuration d)
+
 formatInterval (I.DurationOnly d) = (formatIsoDuration d)
 
 formatDateTime ∷ DateTime → String
@@ -39,19 +42,27 @@ formatDuration ∷ I.Duration → String
 formatDuration (I.Duration m) = "P" <> datePart <> timePart
   where
   datePart = componentToString `foldMap` dateComponentsToStr
+
   timePart = ("T" <> _) `ifmempty` (componentToString `foldMap` timeComponentsToStr)
-  ifmempty _ a | a == mempty = mempty
+
+  ifmempty _ a
+    | a == mempty = mempty
+
   ifmempty f a = f a
+
   componentToString (Tuple k s) = maybe "" (formatComponent s) $ lookup k m
+
   formatComponent designator num = formatNumber num <> designator
+
   dateComponentsToStr = [ Tuple I.Year "Y", Tuple I.Month "M", Tuple I.Week "W", Tuple I.Day "D" ]
+
   timeComponentsToStr = [ Tuple I.Hour "H", Tuple I.Minute "M", Tuple I.Second "S" ]
 
 formatInteger ∷ Int → String
 formatInteger = show
 
 formatNumber ∷ Number → String
-formatNumber n = if Int.toNumber (Int.floor n) == n then show (Int.floor n) else show n
+formatNumber n = if (Int.toNumber (Int.floor n)) == n then (show (Int.floor n)) else showNumberAsFloat n
 
 unformatRecurringInterval ∷ String → Either String (I.RecurringInterval IsoDuration DateTime)
 unformatRecurringInterval = runP $ parseRecurringInterval parseIsoDuration parseDateTime
