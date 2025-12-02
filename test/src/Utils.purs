@@ -24,7 +24,7 @@ forAll itTitle title arb f =
 shouldEqual :: forall a. Show a => Eq a => a -> a -> Effect Unit
 shouldEqual actual expected = assertEqual { expected, actual }
 
-makeDateTime ∷ Int → Int → Int → Int → Int → Int → Int → DateTime
+makeDateTime :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> DateTime
 makeDateTime year month day hour minute second millisecond =
   DateTime
     ( canonicalDate

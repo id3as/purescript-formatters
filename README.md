@@ -4,7 +4,6 @@
 [![Release](https://img.shields.io/github/release/purescript-contrib/purescript-formatters.svg)](https://github.com/purescript-contrib/purescript-formatters/releases)
 [![Pursuit](https://pursuit.purescript.org/packages/purescript-formatters/badge)](https://pursuit.purescript.org/packages/purescript-formatters)
 [![Maintainer: garyb](https://img.shields.io/badge/maintainer-garyb-teal.svg)](https://github.com/garyb)
-[![Maintainer: thomashoneyman](https://img.shields.io/badge/maintainer-thomashoneyman-teal.svg)](https://github.com/thomashoneyman)
 
 A PureScript alternative to numeral.js, moment.js, etc.
 
@@ -84,7 +83,7 @@ Full list is defined [here](https://github.com/slamdata/purescript-formatters/bl
 If you get stuck, there are several ways to get help:
 
 - [Open an issue](https://github.com/purescript-contrib/purescript-formatters/issues) if you have encountered a bug or problem.
-- [Search or start a thread on the PureScript Discourse](https://discourse.purescript.org) if you have general questions. You can also ask questions in the `#purescript` and `#purescript-beginners` channels on the [Functional Programming Slack](https://functionalprogramming.slack.com) ([invite link](https://fpchat-invite.herokuapp.com/)).
+- Ask general questions on the [PureScript Discourse](https://discourse.purescript.org) forum or the [PureScript Discord](https://purescript.org/chat) chat.
 
 ## Contributing
 

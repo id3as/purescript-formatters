@@ -18,7 +18,6 @@
   , "parsing"
   , "partial"
   , "prelude"
-  , "psci-support"
   , "strings"
   , "transformers"
   , "tuples"

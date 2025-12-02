@@ -110,7 +110,7 @@ invalidIntervals =
   , { err: "Expected EOF (line 1, col 8)", str: "P1Y0.5M/P1Y0.5M" }
   ]
 
-recurrences ∷ Array { str ∷ String, rec ∷ Maybe Int }
+recurrences :: Array { str :: String, rec :: Maybe Int }
 recurrences =
   [ { str: "", rec: Nothing }
   , { str: "18", rec: Just 18 }
@@ -128,10 +128,10 @@ type ArbRecurringInterval
 type ArbInterval
   = Array { str ∷ String, formatedStr ∷ String, interval ∷ I.Interval IsoDuration DateTime }
 
-arbRecurringInterval ∷ ArbRecurringInterval
+arbRecurringInterval :: ArbRecurringInterval
 arbRecurringInterval = do
-  rec ← recurrences
-  i ← arbInterval
+  rec <- recurrences
+  i <- arbInterval
   pure
     { str: "R" <> rec.str <> "/" <> i.str
     , formatedStr: "R" <> rec.str <> "/" <> i.formatedStr
@@ -147,39 +147,39 @@ arbInterval =
     , arbIntervalDurationOnly
     ]
 
-arbIntervalStartEnd ∷ ArbInterval
+arbIntervalStartEnd :: ArbInterval
 arbIntervalStartEnd = do
-  start ← dates
-  end ← dates
+  start <- dates
+  end <- dates
   pure
     { str: start.str <> "/" <> end.str
     , formatedStr: start.str <> "/" <> end.str
     , interval: I.StartEnd start.date end.date
     }
 
-arbIntervalDurationEnd ∷ ArbInterval
+arbIntervalDurationEnd :: ArbInterval
 arbIntervalDurationEnd = do
-  dur ← durations
-  end ← dates
+  dur <- durations
+  end <- dates
   pure
     { str: dur.str <> "/" <> end.str
     , formatedStr: dur.formatedStr <> "/" <> end.str
     , interval: I.DurationEnd dur.dur end.date
     }
 
-arbIntervalStartDuration ∷ ArbInterval
+arbIntervalStartDuration :: ArbInterval
 arbIntervalStartDuration = do
-  dur ← durations
-  start ← dates
+  dur <- durations
+  start <- dates
   pure
     { str: start.str <> "/" <> dur.str
     , formatedStr: start.str <> "/" <> dur.formatedStr
     , interval: I.StartDuration start.date dur.dur
     }
 
-arbIntervalDurationOnly ∷ ArbInterval
+arbIntervalDurationOnly :: ArbInterval
 arbIntervalDurationOnly = do
-  dur ← durations
+  dur <- durations
   pure
     { str: dur.str
     , formatedStr: dur.formatedStr

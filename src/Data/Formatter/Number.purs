@@ -47,12 +47,12 @@ derive instance genericFormatter ∷ Generic Formatter _
 
 derive instance newtypeFormatter ∷ Newtype Formatter _
 
-instance showFormatter ∷ Show Formatter where
+instance showFormatter :: Show Formatter where
   show = genericShow
 
-derive instance eqFormatter ∷ Eq Formatter
+derive instance eqFormatter :: Eq Formatter
 
-printFormatter ∷ Formatter → String
+printFormatter :: Formatter -> String
 printFormatter (Formatter f) =
   (if f.sign then "+" else "")
     <> repeat "0" (f.before - one)
@@ -61,7 +61,7 @@ printFormatter (Formatter f) =
     <> (repeat "0" f.after)
     <> (if f.abbreviations then "a" else "")
 
-parseFormatString ∷ String → Either String Formatter
+parseFormatString :: String -> Either String Formatter
 parseFormatString = runP formatParser
 
 formatParser ∷ P.Parser String Formatter
@@ -98,87 +98,77 @@ foreign import showNumberAsFloat :: Number -> String
 -- | See [purescript-decimals](https://pursuit.purescript.org/packages/purescript-decimals/4.0.0)
 -- | for working with arbitrary precision decimals, which supports simple number
 -- | formatting for numbers that go beyond the precision available with `Number`.
-format ∷ Formatter → Number → String
-format (Formatter f) num =
+format :: Formatter -> Number -> String
+format (Formatter f) num = do
   let
     absed = Math.abs num
+    tens
+      | absed > 0.0 = max (Int.floor $ Math.log absed / Math.ln10) 0
+      | otherwise = 0
 
-    tens =
-      if absed > 0.0 then
-        max (Int.floor $ Math.log absed / Math.ln10) 0
-      else
-        0
-  in
-    if f.abbreviations then
-      let
-        thousands = tens / 3
+  if f.abbreviations then do
+    let
+      thousands = tens / 3
+      abbr
+        | thousands == 0 = ""
+        | thousands == 1 = "K"
+        | thousands == 2 = "M"
+        | thousands == 3 = "G"
+        | thousands == 4 = "T"
+        | thousands == 5 = "P"
+        | thousands == 6 = "E"
+        | thousands == 7 = "Z"
+        | thousands == 8 = "Y"
+        | otherwise = "10e+" <> show (thousands * 3)
+      newNum = if thousands < 1 then num else num / Math.pow 1000.0 (Int.toNumber thousands)
 
-        abbr
-          | thousands == 0 = ""
-          | thousands == 1 = "K"
-          | thousands == 2 = "M"
-          | thousands == 3 = "G"
-          | thousands == 4 = "T"
-          | thousands == 5 = "P"
-          | thousands == 6 = "E"
-          | thousands == 7 = "Z"
-          | thousands == 8 = "Y"
-          | otherwise = "10e+" <> show (thousands * 3)
+    format (Formatter f { abbreviations = false }) newNum <> abbr
+  else do
+    let
+      zeros = f.before - tens - one
+      factor = Math.pow 10.0 (Int.toNumber (max 0 f.after))
+      rounded = Math.round (absed * factor) / factor
+      integer = Math.floor rounded
+      leftoverDecimal = rounded - integer
+      leftover = Math.round $ leftoverDecimal * factor
 
-        newNum = if thousands < 1 then num else num / Math.pow 1000.0 (Int.toNumber thousands)
-      in
-        format (Formatter f { abbreviations = false }) newNum <> abbr
-    else
-      let
-        zeros = f.before - tens - one
+      leftoverWithZeros = do
+        let
+          leftoverString = showNumberAsInt leftover
+          leftoverLength = Str.length leftoverString
+          zeros' = repeat "0" (f.after - leftoverLength)
 
-        factor = Math.pow 10.0 (Int.toNumber (max 0 f.after))
+        zeros' <> leftoverString
 
-        rounded = Math.round (absed * factor) / factor
+      shownInt =
+        if f.comma then
+          addCommas [] zero (Arr.reverse (CU.toCharArray (repeat "0" zeros <> showNumberAsInt integer)))
+        else
+          repeat "0" zeros <> showNumberAsInt integer
 
-        integer = Math.floor rounded
+      addCommas :: Array Char -> Int -> Array Char -> String
+      addCommas acc counter input = case Arr.uncons input of
+        Nothing -> CU.fromCharArray acc
+        Just { head, tail } | counter < 3 ->
+          addCommas (Arr.cons head acc) (counter + one) tail
+        _ ->
+          addCommas (Arr.cons ',' acc) zero input
 
-        leftoverDecimal = rounded - integer
+      leftovers =
+        if f.after < 1 then ""
+        else
+          "."
+            <> (if leftover == 0.0 then repeat "0" f.after else "")
+            <> (if leftover > 0.0 then leftoverWithZeros else "")
 
-        leftover = Math.round $ leftoverDecimal * factor
+    (if num < zero then "-" else if num > zero && f.sign then "+" else "")
+      <> shownInt
+      <> leftovers
 
-        leftoverWithZeros =
-          let
-            leftoverString = showNumberAsInt leftover
-
-            leftoverLength = Str.length leftoverString
-
-            zeros' = repeat "0" (f.after - leftoverLength)
-          in
-            zeros' <> leftoverString
-
-        shownInt =
-          if f.comma then
-            addCommas [] zero (Arr.reverse (CU.toCharArray (repeat "0" zeros <> showNumberAsInt integer)))
-          else
-            repeat "0" zeros <> showNumberAsInt integer
-
-        addCommas ∷ Array Char → Int → Array Char → String
-        addCommas acc counter input = case Arr.uncons input of
-          Nothing → CU.fromCharArray acc
-          Just { head, tail }
-            | counter < 3 → addCommas (Arr.cons head acc) (counter + one) tail
-          _ → addCommas (Arr.cons ',' acc) zero input
-      in
-        (if num < zero then "-" else if num > zero && f.sign then "+" else "")
-          <> shownInt
-          <> ( if f.after < 1 then
-                ""
-              else
-                "."
-                  <> (if leftover == 0.0 then repeat "0" f.after else "")
-                  <> (if leftover > 0.0 then leftoverWithZeros else "")
-            )
-
-unformat ∷ Formatter → String → Either String Number
+unformat :: Formatter -> String -> Either String Number
 unformat = runP <<< unformatParser
 
-unformatParser ∷ Formatter → P.Parser String Number
+unformatParser :: Formatter -> P.Parser String Number
 unformatParser (Formatter f) = do
   minus ← PC.optionMaybe $ PC.try $ PS.string "-"
   sign ← case minus of
@@ -188,14 +178,14 @@ unformatParser (Formatter f) = do
       | otherwise → pure 1.0
     Just _ → pure (-1.0)
   let
-    digitsWithCommas ∷ P.Parser String (Array Int)
+    digitsWithCommas :: P.Parser String (Array Int)
     digitsWithCommas =
       if not f.comma then do
         some parseDigit <* PS.string "."
       else
         digitsWithCommas' []
 
-    digitsWithCommas' ∷ Array Int → P.Parser String (Array Int)
+    digitsWithCommas' :: Array Int -> P.Parser String (Array Int)
     digitsWithCommas' accum = do
       ds ← some parseDigit
       when (Arr.null accum && Arr.length ds > 3)
@@ -223,8 +213,8 @@ unformatParser (Formatter f) = do
     if f.abbreviations then do
       letter ← PC.optionMaybe $ PC.try $ PS.oneOf [ 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' ]
       case letter of
-        Nothing → do
-          e ← PC.optionMaybe $ PS.string "10e+"
+        Nothing -> do
+          e <- PC.optionMaybe $ PS.string "10e+"
           case e of
             Nothing → pure 0
             Just _ → map foldDigits $ many parseDigit

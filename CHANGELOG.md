@@ -5,12 +5,19 @@ Notable changes to this project are documented in this file. The format is based
 ## [Unreleased]
 
 Breaking changes:
+- Migrate FFI to ES modules (#79 by @i-am-the-slime and @JordanMartinez)
 
 New features:
 
 Bugfixes:
 
 Other improvements:
+- Added `purs-tidy` formatter (#77 by @thomashoneyman)
+
+## [v6.0.0](https://github.com/purescript-contrib/purescript-formatters/releases/tag/v6.0.0) - 2021-10-16
+
+Breaking changes:
+- Upgraded to parsing v7.0.0, replace all `StringLike` constraints with `String` type (#76 by @jamesdbrock)
 
 ## [v5.0.1](https://github.com/purescript-contrib/purescript-formatters/releases/tag/v5.0.1) - 2021-05-06
 

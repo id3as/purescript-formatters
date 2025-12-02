@@ -117,7 +117,7 @@ fmt7 =
     , sign: false
     }
 
-numberformatts ∷ Array { fmt ∷ Formatter, str ∷ String }
+numberformatts :: Array { fmt :: Formatter, str :: String }
 numberformatts =
   [ { str: "000.00"
     , fmt: fmt1
